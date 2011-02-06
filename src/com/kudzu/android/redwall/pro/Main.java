@@ -171,7 +171,8 @@ public class Main extends Activity {
 			}
 
 		} catch (Exception e) {
-			Toast.makeText(this, "Error Updaing Wallpaper", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Error Updaing Wallpaper", Toast.LENGTH_SHORT)
+					.show();
 		}
 	}
 
@@ -232,6 +233,7 @@ public class Main extends Activity {
 				JSONObject jox = children.getJSONObject(x);
 				JSONObject joxd = jox.getJSONObject("data");
 				String title = joxd.getString("title");
+				String url = joxd.getString("url");
 
 				Boolean is_self = joxd.getBoolean("is_self");
 
@@ -241,9 +243,11 @@ public class Main extends Activity {
 					 * Bitmap thumb = BitmapFactory .decodeStream((InputStream)
 					 * new URL(joxd .getString("thumbnail")).getContent());
 					 */
-					if (joxd.getString("url").startsWith("http://i.imgur.com/")) {
-						Wallpaper newWp = new Wallpaper(title,
-								joxd.getString("url"),
+					if (url.startsWith("http://i.imgur.com/") || // if its ad
+																	// i.imgur.com
+							// if just on imgur.com
+							(url.startsWith("http://imgur.com/") && (url.endsWith(".jpg") || url.endsWith(".png")))) {
+						Wallpaper newWp = new Wallpaper(title, url,
 								joxd.getString("thumbnail"),
 								joxd.getString("permalink"),
 								joxd.getString("name"));
