@@ -3,6 +3,7 @@ package com.kudzu.android.redwall.pro;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -16,10 +17,14 @@ import android.widget.TextView;
 
 public class WallpaperAdapter extends ArrayAdapter<Wallpaper> {
 	int resource;
-
+	ImageLoader imageLoader;
+	Context ctx;
 	public WallpaperAdapter(Context _context, int _resource, List<Wallpaper> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
+		ctx = _context;
+		imageLoader = new ImageLoader(ctx);
+		
 	}
 
 	@Override
@@ -29,7 +34,7 @@ public class WallpaperAdapter extends ArrayAdapter<Wallpaper> {
 		
 		String title = item.getTitle();
 		String url = item.getImg();
-		Bitmap thumb = item.getThumb();
+		String thumb = item.getThumb();
 
 
 
@@ -47,7 +52,10 @@ public class WallpaperAdapter extends ArrayAdapter<Wallpaper> {
 		
 		ImageView imgView = (ImageView)newsView.findViewById(R.id.thumb);
 
-		imgView.setImageBitmap(thumb);
+		imageLoader.DisplayImage(this,thumb, ctx, imgView);
+		
+		
+		//imgView.setImageBitmap(thumb);
 		txtTitle.setText(title);
 		
 		return newsView;

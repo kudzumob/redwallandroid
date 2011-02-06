@@ -195,12 +195,14 @@ public class Main extends Activity {
 
 				if (!is_self) {
 
+					/*
 					Bitmap thumb = BitmapFactory
 							.decodeStream((InputStream) new URL(joxd
 									.getString("thumbnail")).getContent());
-
+					 */
+					
 					Wallpaper newWp = new Wallpaper(title,
-							joxd.getString("url"), thumb,
+							joxd.getString("url"), joxd.getString("thumbnail"),
 							joxd.getString("permalink"));
 					wallpapers.add(newWp);
 

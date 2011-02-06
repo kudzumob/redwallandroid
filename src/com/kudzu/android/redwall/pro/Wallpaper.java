@@ -5,10 +5,12 @@ import android.graphics.Bitmap;
 public class Wallpaper {
 	private String title;
 	private String img;
-	private Bitmap thumb;
+	private String thumb;
 	private String src;
 	
-	public Wallpaper(String title,String img,Bitmap thumb,String src){
+	
+	
+	public Wallpaper(String title,String img,String thumb,String src){
 		this.title = title;
 		this.img = img;
 		this.thumb = thumb;		
@@ -28,10 +30,10 @@ public class Wallpaper {
 	public String getImg() {
 		return img;
 	}
-	public void setThumb(Bitmap thumb) {
+	public void setThumb(String thumb) {
 		this.thumb = thumb;
 	}
-	public Bitmap getThumb() {
+	public String getThumb() {
 		return thumb;
 	}
 
@@ -44,4 +46,7 @@ public class Wallpaper {
 	public String getSrc() {
 		return src;
 	}
+
+
+
 }
