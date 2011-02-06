@@ -7,16 +7,18 @@ public class Wallpaper {
 	private String img;
 	private String thumb;
 	private String src;
+	private String localURI;
+	private String name;
 	
 	
 	
-	public Wallpaper(String title,String img,String thumb,String src){
+	public Wallpaper(String title,String img,String thumb,String src,String name){
 		this.title = title;
 		this.img = img;
 		this.thumb = thumb;		
-		this.setSrc(src);	
+		this.src = src;	
+		this.name = name;
 	}
-	
 	
 	public void setTitle(String title) {
 		this.title = title;
@@ -45,6 +47,22 @@ public class Wallpaper {
 
 	public String getSrc() {
 		return src;
+	}
+	
+	public void setLocalURI(String localURI){
+		this.localURI = localURI;
+	}
+	
+	public String getLocalURI() {
+		return localURI;
+	}
+	
+	public void setName(String name){
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
 	}
 
 

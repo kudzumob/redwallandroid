@@ -1,8 +1,11 @@
 package com.kudzu.android.redwall.pro;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -10,10 +13,6 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.kudzu.android.redwall.pro.GetReddit.ApiException;
-import com.kudzu.android.redwall.pro.GetReddit.ParseException;
-
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,36 +23,38 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-
+import android.provider.MediaStore;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+
+import com.kudzu.android.redwall.pro.GetReddit.ApiException;
+import com.kudzu.android.redwall.pro.GetReddit.ParseException;
 
 public class Main extends Activity {
 	protected static final int MENU_COMMENT = Menu.FIRST + 1;
 	protected static final int MENU_VIEW = Menu.FIRST + 2;
 	protected static final int MENU_SET = Menu.FIRST + 3;
+	protected static final int MENU_DOWNLOAD = Menu.FIRST + 4;
 
 	protected static final int MENU_REFRESH = Menu.FIRST + 10;
 	protected static final int MENU_QUIT = Menu.FIRST + 11;
 	protected static final int MENU_ABOUT = Menu.FIRST + 12;
 	final int NOTIFY_DATASET_CHANGED = 1;
 
-	private String LOCAL_PATH = "/sdcard/.redwall";
-
+	private String LOCAL_PATH = "/.redwall";
+	private File EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory() + LOCAL_PATH);
+	
 	ProgressDialog dialog;
 
 	WallpaperAdapter adapt;
@@ -67,6 +68,7 @@ public class Main extends Activity {
 		public void onCreateContextMenu(ContextMenu menu, View v,
 				ContextMenuInfo menuInfo) {
 			// TODO Auto-generated method stub
+			menu.add(0, MENU_DOWNLOAD, 0, "Download wallpaper");
 			menu.add(0, MENU_SET, 0, "Set as wallpaper");
 			menu.add(0, MENU_VIEW, 0, "View in browser");
 			menu.add(0, MENU_COMMENT, 0, "Comments / Vote / Report");
@@ -80,6 +82,10 @@ public class Main extends Activity {
 		switch (item.getItemId()) {
 		case MENU_SET:
 			setWallpaper(menuInfo.position);
+			// open(menuInfo.position);
+			return true;
+		case MENU_DOWNLOAD:
+			downloadWallpaper(menuInfo.position);
 			// open(menuInfo.position);
 			return true;
 		case MENU_VIEW:
@@ -113,16 +119,51 @@ public class Main extends Activity {
 	private void open_about() {
 		open_web("http://rootskudzumob.appspot.com/help.jsp?aid=ag1yb290c2t1ZHp1bW9icgwLEgRBcHBNGPnMAww");
 	}
-
+	public void downloadWallpaper(int pos) {
+		if (wallpapers.get(pos).getLocalURI() == null) {
+			String url = wallpapers.get(pos).getImg();
+			try {
+				Bitmap bitmap = BitmapFactory.decodeStream((InputStream) new URL(
+						url).getContent());
+				
+				OutputStream fOut = null;
+		        File file = new File(EXTERNAL_STORAGE, wallpapers.get(pos).getName()+ ".jpg");
+		            fOut = new FileOutputStream(file);
+	
+		        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+		            fOut.flush();
+		            fOut.close();
+	
+			//MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+			wallpapers.get(pos).setLocalURI(file.getAbsolutePath());
+			
+			Toast.makeText(Main.this, wallpapers.get(pos).getLocalURI(), Toast.LENGTH_LONG)
+			.show();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			Toast.makeText(Main.this, "Already downloaded", Toast.LENGTH_LONG)
+			.show();
+		}
+	}
 	public void setWallpaper(int pos) {
 
-		String url = wallpapers.get(pos).getImg();
+		String uri = wallpapers.get(pos).getLocalURI();
 		try {
-			Bitmap bitmap = BitmapFactory.decodeStream((InputStream) new URL(
-					url).getContent());
-			getApplicationContext().setWallpaper(bitmap);
-			Toast.makeText(Main.this, "Wallpaper Updated", Toast.LENGTH_LONG)
-					.show();
+			if (uri != null) {
+				Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(uri));
+				getApplicationContext().setWallpaper(bitmap);
+				Toast.makeText(Main.this, "Wallpaper Updated", Toast.LENGTH_LONG)
+						.show();
+			} else {
+				downloadWallpaper(pos);
+				setWallpaper(pos);
+			}
 
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -200,12 +241,12 @@ public class Main extends Activity {
 							.decodeStream((InputStream) new URL(joxd
 									.getString("thumbnail")).getContent());
 					 */
-					
-					Wallpaper newWp = new Wallpaper(title,
-							joxd.getString("url"), joxd.getString("thumbnail"),
-							joxd.getString("permalink"));
-					wallpapers.add(newWp);
-
+					if (joxd.getString("url").startsWith("http://i.imgur.com/")) {
+						Wallpaper newWp = new Wallpaper(title,
+								joxd.getString("url"), joxd.getString("thumbnail"),
+								joxd.getString("permalink"), joxd.getString("name"));
+						wallpapers.add(newWp);
+					}
 				}
 
 			}
@@ -280,8 +321,7 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-
-		
+		EXTERNAL_STORAGE.mkdirs();
 		
 		list = (ListView) this.findViewById(R.id.list);
 		int layoutID = R.layout.list_item;
