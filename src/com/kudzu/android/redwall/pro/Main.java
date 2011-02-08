@@ -78,7 +78,7 @@ public class Main extends Activity {
 				currentFeed = "http://www.reddit.com/r/redwall/.json";
 				doupdate = true;
 			} else if (v == cmdnew) {
-				currentFeed = "http://www.reddit.com/r/redwall/new/.json";
+				currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new";
 				doupdate = true;
 			} else if (v == cmdtopday) {
 				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
