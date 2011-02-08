@@ -297,7 +297,10 @@ public class Main extends Activity {
 						Wallpaper newWp = new Wallpaper(title, url,
 								joxd.getString("thumbnail"),
 								joxd.getString("permalink"),
-								joxd.getString("name"));
+								joxd.getString("name"),
+								joxd.getString("author"),
+								joxd.getInt("score"),
+								joxd.getInt("num_comments"));
 						wallpapers.add(newWp);
 					}
 				}
