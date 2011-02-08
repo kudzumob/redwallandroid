@@ -26,14 +26,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
+
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -50,17 +52,63 @@ public class Main extends Activity {
 	protected static final int MENU_REFRESH = Menu.FIRST + 10;
 	protected static final int MENU_QUIT = Menu.FIRST + 11;
 	protected static final int MENU_ABOUT = Menu.FIRST + 12;
+
 	final int NOTIFY_DATASET_CHANGED = 1;
 
-	private String LOCAL_PATH = "/.redwall";
-	private File EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory() + LOCAL_PATH);
-	
+	private String LOCAL_PATH = "/redwall";
+	private File EXTERNAL_STORAGE = new File(
+			Environment.getExternalStorageDirectory() + LOCAL_PATH);
+
+	String currentFeed = "http://www.reddit.com/r/redwall.json";
+
 	ProgressDialog dialog;
 
 	WallpaperAdapter adapt;
 	ArrayList<Wallpaper> wallpapers = new ArrayList<Wallpaper>();
 
 	ListView list;
+
+	Button cmdhot, cmdnew, cmdtopday, cmdtopweek, cmdtopmonth, cmdtopyear;
+
+	OnClickListener cmdListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			boolean doupdate = false;
+			if (v == cmdhot) {
+				currentFeed = "http://www.reddit.com/r/redwall/.json";
+				doupdate = true;
+			} else if (v == cmdnew) {
+				currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new";
+				doupdate = true;
+			} else if (v == cmdtopday) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
+				doupdate = true;
+			} else if (v == cmdtopweek) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week";
+				doupdate = true;
+			} else if (v == cmdtopmonth) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month";
+				doupdate = true;
+			} else if (v == cmdtopyear) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year";
+				doupdate = true;
+			}
+
+			if (doupdate) {
+				dialog = ProgressDialog.show(Main.this, "",
+						"Loading. Please wait...", true);
+				new Thread(new Runnable() {
+					public void run() {
+						refresh();
+						dialog.dismiss();
+						handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+					}
+				}).start();
+
+			}
+
+		}
+	};
 
 	OnCreateContextMenuListener cmListener = new OnCreateContextMenuListener() {
 
@@ -119,26 +167,28 @@ public class Main extends Activity {
 	private void open_about() {
 		open_web("http://rootskudzumob.appspot.com/help.jsp?aid=ag1yb290c2t1ZHp1bW9icgwLEgRBcHBNGPnMAww");
 	}
+
 	public void downloadWallpaper(int pos) {
 		if (wallpapers.get(pos).getLocalURI() == null) {
 			String url = wallpapers.get(pos).getImg();
 			try {
-				Bitmap bitmap = BitmapFactory.decodeStream((InputStream) new URL(
-						url).getContent());
-				
+				Bitmap bitmap = BitmapFactory
+						.decodeStream((InputStream) new URL(url).getContent());
+
 				OutputStream fOut = null;
-		        File file = new File(EXTERNAL_STORAGE, wallpapers.get(pos).getName()+ ".jpg");
-		            fOut = new FileOutputStream(file);
-	
-		        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-		            fOut.flush();
-		            fOut.close();
-	
-			//MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
-			wallpapers.get(pos).setLocalURI(file.getAbsolutePath());
-			
-			Toast.makeText(Main.this, wallpapers.get(pos).getLocalURI(), Toast.LENGTH_LONG)
-			.show();
+				File file = new File(EXTERNAL_STORAGE, wallpapers.get(pos)
+						.getName() + ".jpg");
+				fOut = new FileOutputStream(file);
+
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+				fOut.flush();
+				fOut.close();
+
+				// MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+				wallpapers.get(pos).setLocalURI(file.getAbsolutePath());
+
+				Toast.makeText(Main.this, wallpapers.get(pos).getLocalURI(),
+						Toast.LENGTH_LONG).show();
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -148,29 +198,28 @@ public class Main extends Activity {
 			}
 		} else {
 			Toast.makeText(Main.this, "Already downloaded", Toast.LENGTH_LONG)
-			.show();
+					.show();
 		}
 	}
+
 	public void setWallpaper(int pos) {
 
 		String uri = wallpapers.get(pos).getLocalURI();
 		try {
 			if (uri != null) {
-				Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(uri));
+				Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(
+						uri));
 				getApplicationContext().setWallpaper(bitmap);
-				Toast.makeText(Main.this, "Wallpaper Updated", Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(Main.this, "Wallpaper Updated",
+						Toast.LENGTH_LONG).show();
 			} else {
 				downloadWallpaper(pos);
 				setWallpaper(pos);
 			}
 
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			Toast.makeText(this, "Error Updaing Wallpaper", Toast.LENGTH_SHORT)
+					.show();
 		}
 	}
 
@@ -222,8 +271,7 @@ public class Main extends Activity {
 	public void refresh() {
 		wallpapers.clear();
 		try {
-			JSONObject jo = GetReddit
-					.getReddit("http://www.reddit.com/r/redwall.json");
+			JSONObject jo = GetReddit.getReddit(currentFeed);
 			JSONArray children = jo.getJSONArray("children");
 			int s = children.length();
 
@@ -231,20 +279,28 @@ public class Main extends Activity {
 				JSONObject jox = children.getJSONObject(x);
 				JSONObject joxd = jox.getJSONObject("data");
 				String title = joxd.getString("title");
+				String url = joxd.getString("url");
 
 				Boolean is_self = joxd.getBoolean("is_self");
 
 				if (!is_self) {
 
 					/*
-					Bitmap thumb = BitmapFactory
-							.decodeStream((InputStream) new URL(joxd
-									.getString("thumbnail")).getContent());
+					 * Bitmap thumb = BitmapFactory .decodeStream((InputStream)
+					 * new URL(joxd .getString("thumbnail")).getContent());
 					 */
-					if (joxd.getString("url").startsWith("http://i.imgur.com/")) {
-						Wallpaper newWp = new Wallpaper(title,
-								joxd.getString("url"), joxd.getString("thumbnail"),
-								joxd.getString("permalink"), joxd.getString("name"));
+					if (url.startsWith("http://i.imgur.com/") || // if its ad
+																	// i.imgur.com
+							// if just on imgur.com
+							(url.startsWith("http://imgur.com/") && (url
+									.endsWith(".jpg") || url.endsWith(".png")))) {
+						Wallpaper newWp = new Wallpaper(title, url,
+								joxd.getString("thumbnail"),
+								joxd.getString("permalink"),
+								joxd.getString("name"),
+								joxd.getString("author"),
+								joxd.getInt("score"),
+								joxd.getInt("num_comments"));
 						wallpapers.add(newWp);
 					}
 				}
@@ -282,7 +338,6 @@ public class Main extends Activity {
 			}
 		}
 	};
-
 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_REFRESH, 0, "Refresh");
@@ -322,7 +377,7 @@ public class Main extends Activity {
 		setContentView(R.layout.main);
 
 		EXTERNAL_STORAGE.mkdirs();
-		
+
 		list = (ListView) this.findViewById(R.id.list);
 		int layoutID = R.layout.list_item;
 		adapt = new WallpaperAdapter(this, layoutID, wallpapers);
@@ -330,8 +385,6 @@ public class Main extends Activity {
 		list.setOnItemClickListener(clickListener);
 		list.setOnCreateContextMenuListener(cmListener);
 
-		
-		
 		dialog = ProgressDialog.show(Main.this, "", "Loading. Please wait...",
 				true);
 		new Thread(new Runnable() {
@@ -342,6 +395,18 @@ public class Main extends Activity {
 			}
 		}).start();
 
+		cmdhot = (Button) this.findViewById(R.id.cmdhot);
+		cmdhot.setOnClickListener(cmdListener);
+		cmdnew = (Button) this.findViewById(R.id.cmdnew);
+		cmdnew.setOnClickListener(cmdListener);
+		cmdtopday = (Button) this.findViewById(R.id.cmdtopday);
+		cmdtopday.setOnClickListener(cmdListener);
+		cmdtopweek = (Button) this.findViewById(R.id.cmdtopweek);
+		cmdtopweek.setOnClickListener(cmdListener);
+		cmdtopmonth = (Button) this.findViewById(R.id.cmdtopmonth);
+		cmdtopmonth.setOnClickListener(cmdListener);
+		cmdtopyear = (Button) this.findViewById(R.id.cmdtopyear);
+		cmdtopyear.setOnClickListener(cmdListener);
 
 	}
 

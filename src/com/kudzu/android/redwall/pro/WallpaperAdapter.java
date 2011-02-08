@@ -35,7 +35,16 @@ public class WallpaperAdapter extends ArrayAdapter<Wallpaper> {
 		String title = item.getTitle();
 		String url = item.getImg();
 		String thumb = item.getThumb();
-
+		String author = item.getSubmitor();
+		
+		//i know how dirty this looks
+		//but getting the relative layout to work like i needed
+		//        ##### TITLE######
+		//   IMG
+		//        #SCORE#       #COMMENTS#
+		//				    /\
+		//                problem
+		String other = item.getScore() + " points, "+item.getComments()+" comments, by " +author;
 
 
 		if (convertView == null) {
@@ -49,7 +58,7 @@ public class WallpaperAdapter extends ArrayAdapter<Wallpaper> {
 
 		
 		TextView txtTitle = (TextView)newsView.findViewById(R.id.txtTitle);
-		
+		TextView txtOther = (TextView)newsView.findViewById(R.id.txtOther);
 		ImageView imgView = (ImageView)newsView.findViewById(R.id.thumb);
 
 		imageLoader.DisplayImage(this,thumb, ctx, imgView);
@@ -57,7 +66,7 @@ public class WallpaperAdapter extends ArrayAdapter<Wallpaper> {
 		
 		//imgView.setImageBitmap(thumb);
 		txtTitle.setText(title);
-		
+		txtOther.setText(other);
 		return newsView;
 	}
 }

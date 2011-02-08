@@ -1,6 +1,6 @@
 package com.kudzu.android.redwall.pro;
 
-import android.graphics.Bitmap;
+
 
 public class Wallpaper {
 	private String title;
@@ -9,17 +9,22 @@ public class Wallpaper {
 	private String src;
 	private String localURI;
 	private String name;
-	
-	
-	
-	public Wallpaper(String title,String img,String thumb,String src,String name){
+
+	private String submitor;
+	private int score;
+	private int comments;
+
+	public Wallpaper(String title,String img,String thumb,String src,String name,String submitor,int score,int comments){
 		this.title = title;
 		this.img = img;
 		this.thumb = thumb;		
 		this.src = src;	
-		this.name = name;
+		this.name = name;		
+		this.submitor=submitor;
+		this.score=score;
+		this.comments= comments;
 	}
-	
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -48,21 +53,45 @@ public class Wallpaper {
 	public String getSrc() {
 		return src;
 	}
-	
+
 	public void setLocalURI(String localURI){
 		this.localURI = localURI;
 	}
-	
+
 	public String getLocalURI() {
 		return localURI;
 	}
-	
+
 	public void setName(String name){
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
+	}
+
+	public void setSubmitor(String submitor) {
+		this.submitor = submitor;
+	}
+
+	public String getSubmitor() {
+		return submitor;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setComments(int comments) {
+		this.comments = comments;
+	}
+
+	public int getComments() {
+		return comments;
 	}
 
 
