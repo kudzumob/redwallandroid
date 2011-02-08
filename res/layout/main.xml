@@ -5,8 +5,27 @@
 	android:layout_height="fill_parent">
 
 
+	<HorizontalScrollView android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+		<LinearLayout android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<Button android:id="@+id/cmdhot" android:text="Hot"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<Button android:id="@+id/cmdnew" android:text="New"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<Button android:id="@+id/cmdtopday" android:text="Top Today"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<Button android:id="@+id/cmdtopweek" android:text="Top Week"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<Button android:id="@+id/cmdtopmonth" android:text="Top Month"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<Button android:id="@+id/cmdtopyear" android:text="Top Year"
+				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+		</LinearLayout>
+	</HorizontalScrollView>
+
 	<ListView android:id="@+id/list" android:layout_height="fill_parent"
-		android:layout_width="fill_parent"  android:layout_weight="99"/>
+		android:layout_width="fill_parent" android:layout_weight="99" />
 
 
 </LinearLayout>

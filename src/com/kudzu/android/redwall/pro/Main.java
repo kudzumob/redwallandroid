@@ -32,8 +32,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -50,11 +52,14 @@ public class Main extends Activity {
 	protected static final int MENU_REFRESH = Menu.FIRST + 10;
 	protected static final int MENU_QUIT = Menu.FIRST + 11;
 	protected static final int MENU_ABOUT = Menu.FIRST + 12;
+
 	final int NOTIFY_DATASET_CHANGED = 1;
 
 	private String LOCAL_PATH = "/redwall";
 	private File EXTERNAL_STORAGE = new File(
 			Environment.getExternalStorageDirectory() + LOCAL_PATH);
+
+	String currentFeed = "http://www.reddit.com/r/redwall.json";
 
 	ProgressDialog dialog;
 
@@ -62,6 +67,48 @@ public class Main extends Activity {
 	ArrayList<Wallpaper> wallpapers = new ArrayList<Wallpaper>();
 
 	ListView list;
+
+	Button cmdhot, cmdnew, cmdtopday, cmdtopweek, cmdtopmonth, cmdtopyear;
+
+	OnClickListener cmdListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			boolean doupdate = false;
+			if (v == cmdhot) {
+				currentFeed = "http://www.reddit.com/r/redwall/.json";
+				doupdate = true;
+			} else if (v == cmdnew) {
+				currentFeed = "http://www.reddit.com/r/redwall/new.json";
+				doupdate = true;
+			} else if (v == cmdtopday) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
+				doupdate = true;
+			} else if (v == cmdtopweek) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week";
+				doupdate = true;
+			} else if (v == cmdtopmonth) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month";
+				doupdate = true;
+			} else if (v == cmdtopyear) {
+				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year";
+				doupdate = true;
+			}
+
+			if (doupdate) {
+				dialog = ProgressDialog.show(Main.this, "",
+						"Loading. Please wait...", true);
+				new Thread(new Runnable() {
+					public void run() {
+						refresh();
+						dialog.dismiss();
+						handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+					}
+				}).start();
+
+			}
+
+		}
+	};
 
 	OnCreateContextMenuListener cmListener = new OnCreateContextMenuListener() {
 
@@ -224,8 +271,7 @@ public class Main extends Activity {
 	public void refresh() {
 		wallpapers.clear();
 		try {
-			JSONObject jo = GetReddit
-					.getReddit("http://www.reddit.com/r/redwall.json");
+			JSONObject jo = GetReddit.getReddit(currentFeed);
 			JSONArray children = jo.getJSONArray("children");
 			int s = children.length();
 
@@ -246,7 +292,8 @@ public class Main extends Activity {
 					if (url.startsWith("http://i.imgur.com/") || // if its ad
 																	// i.imgur.com
 							// if just on imgur.com
-							(url.startsWith("http://imgur.com/") && (url.endsWith(".jpg") || url.endsWith(".png")))) {
+							(url.startsWith("http://imgur.com/") && (url
+									.endsWith(".jpg") || url.endsWith(".png")))) {
 						Wallpaper newWp = new Wallpaper(title, url,
 								joxd.getString("thumbnail"),
 								joxd.getString("permalink"),
@@ -344,6 +391,19 @@ public class Main extends Activity {
 				handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
 		}).start();
+
+		cmdhot = (Button) this.findViewById(R.id.cmdhot);
+		cmdhot.setOnClickListener(cmdListener);
+		cmdnew = (Button) this.findViewById(R.id.cmdnew);
+		cmdnew.setOnClickListener(cmdListener);
+		cmdtopday = (Button) this.findViewById(R.id.cmdtopday);
+		cmdtopday.setOnClickListener(cmdListener);
+		cmdtopweek = (Button) this.findViewById(R.id.cmdtopweek);
+		cmdtopweek.setOnClickListener(cmdListener);
+		cmdtopmonth = (Button) this.findViewById(R.id.cmdtopmonth);
+		cmdtopmonth.setOnClickListener(cmdListener);
+		cmdtopyear = (Button) this.findViewById(R.id.cmdtopyear);
+		cmdtopyear.setOnClickListener(cmdListener);
 
 	}
 
