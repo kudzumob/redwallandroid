@@ -4,6 +4,23 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
+	<LinearLayout style="@style/TitleBar">
+        <ImageView style="@style/TitleBarLogo"
+            android:src="@drawable/title_logo" />
+
+        <View style="@style/TitleBarSpring" />
+
+        <ImageView style="@style/TitleBarSeparator" />
+        <ImageButton style="@style/TitleBarAction"
+            android:id="@+id/btn_title_refresh"
+            android:src="@drawable/ic_title_refresh"
+            android:onClick="refresh" />
+        <ProgressBar style="@style/TitleBarProgressIndicator"
+            android:id="@+id/title_refresh_progress"
+            android:visibility="gone" />
+            
+    </LinearLayout>
+	
 
 	<HorizontalScrollView android:layout_width="wrap_content"
 		android:layout_height="wrap_content">

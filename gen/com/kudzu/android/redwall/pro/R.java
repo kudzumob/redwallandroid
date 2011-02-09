@@ -73,25 +73,36 @@ containing a value of this type.
         /**  Dimensions for a log item 
          */
         public static final int log_item_padding_top=0x7f040009;
+        public static final int title_height=0x7f04000f;
     }
     public static final class drawable {
-        public static final int icon=0x7f020000;
-        public static final int nothumb=0x7f020001;
+        public static final int btn_bg_pressed=0x7f020000;
+        public static final int btn_bg_selected=0x7f020001;
+        public static final int ic_title_refresh=0x7f020002;
+        public static final int ic_title_refresh_alt=0x7f020003;
+        public static final int ic_title_refresh_default=0x7f020004;
+        public static final int ic_title_refresh_light=0x7f020005;
+        public static final int icon=0x7f020006;
+        public static final int nothumb=0x7f020007;
+        public static final int title_button=0x7f020008;
+        public static final int title_logo=0x7f020009;
     }
     public static final class id {
-        public static final int cmdhot=0x7f060006;
-        public static final int cmdnew=0x7f060007;
-        public static final int cmdtopday=0x7f060008;
-        public static final int cmdtopmonth=0x7f06000a;
-        public static final int cmdtopweek=0x7f060009;
-        public static final int cmdtopyear=0x7f06000b;
-        public static final int image=0x7f060001;
-        public static final int layout_root=0x7f060000;
-        public static final int list=0x7f06000c;
-        public static final int text=0x7f060002;
-        public static final int thumb=0x7f060003;
-        public static final int txtOther=0x7f060005;
-        public static final int txtTitle=0x7f060004;
+        public static final int btn_title_refresh=0x7f070006;
+        public static final int cmdhot=0x7f070008;
+        public static final int cmdnew=0x7f070009;
+        public static final int cmdtopday=0x7f07000a;
+        public static final int cmdtopmonth=0x7f07000c;
+        public static final int cmdtopweek=0x7f07000b;
+        public static final int cmdtopyear=0x7f07000d;
+        public static final int image=0x7f070001;
+        public static final int layout_root=0x7f070000;
+        public static final int list=0x7f07000e;
+        public static final int text=0x7f070002;
+        public static final int thumb=0x7f070003;
+        public static final int title_refresh_progress=0x7f070007;
+        public static final int txtOther=0x7f070005;
+        public static final int txtTitle=0x7f070004;
     }
     public static final class layout {
         public static final int info_dialog=0x7f030000;
@@ -100,6 +111,14 @@ containing a value of this type.
     }
     public static final class string {
         public static final int app_name=0x7f050000;
+    }
+    public static final class style {
+        public static final int TitleBar=0x7f060000;
+        public static final int TitleBarAction=0x7f060004;
+        public static final int TitleBarLogo=0x7f060001;
+        public static final int TitleBarProgressIndicator=0x7f060005;
+        public static final int TitleBarSeparator=0x7f060003;
+        public static final int TitleBarSpring=0x7f060002;
     }
     public static final class styleable {
         /** Attributes that can be used with a com_admob_android_ads_AdView.

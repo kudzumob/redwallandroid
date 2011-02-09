@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	<style name="TitleBar">
+        <item name="android:id">@+id/title_container</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">@dimen/title_height</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">#ffff0000</item>
+    </style>
+
+	<style name="TitleBarLogo">
+        <item name="android:id">@+id/title_logo</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:clickable">false</item>
+    </style>
+    
+    <style name="TitleBarSpring">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    
+    <style name="TitleBarSeparator">
+        <item name="android:layout_width">1px</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">#ffffffff</item>
+    </style>
+    
+    <style name="TitleBarAction">
+        <item name="android:layout_width">@dimen/title_height</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@drawable/title_button</item>
+    </style>
+    
+    <style name="TitleBarProgressIndicator" parent="@android:style/Widget.ProgressBar.Small">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">14dip</item>
+        <item name="android:layout_marginRight">15dip</item>
+        <item name="android:layout_marginTop">14dip</item>
+        <item name="android:indeterminate">true</item> 
+    </style>
+    
+</resources>

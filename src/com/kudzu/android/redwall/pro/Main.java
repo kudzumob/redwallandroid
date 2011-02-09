@@ -37,6 +37,7 @@ import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -73,39 +74,46 @@ public class Main extends Activity {
 	OnClickListener cmdListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			boolean doupdate = false;
-			if (v == cmdhot) {
-				currentFeed = "http://www.reddit.com/r/redwall/.json";
-				doupdate = true;
-			} else if (v == cmdnew) {
-				currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new";
-				doupdate = true;
-			} else if (v == cmdtopday) {
-				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
-				doupdate = true;
-			} else if (v == cmdtopweek) {
-				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week";
-				doupdate = true;
-			} else if (v == cmdtopmonth) {
-				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month";
-				doupdate = true;
-			} else if (v == cmdtopyear) {
-				currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year";
-				doupdate = true;
+			
+			switch (v.getId()) {
+				case R.id.cmdhot: {
+					currentFeed = "http://www.reddit.com/r/redwall/.json";
+					break;
+				}
+				
+				case R.id.cmdnew: {
+					currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new";
+					break;
+				}
+				case R.id.cmdtopday: {
+					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
+					break;
+				}
+				case R.id.cmdtopweek: {
+					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week";
+					break;
+				}
+				case R.id.cmdtopmonth: {
+					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month";
+					break;
+				}
+				case R.id.cmdtopyear: {
+					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year";
+					break;
+				}
 			}
+			
+			dialog = ProgressDialog.show(Main.this, "",
+					"Loading. Please wait...", true);
+			new Thread(new Runnable() {
+				public void run() {
+					refresh();
+					dialog.dismiss();
+					handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+				}
+			}).start();
 
-			if (doupdate) {
-				dialog = ProgressDialog.show(Main.this, "",
-						"Loading. Please wait...", true);
-				new Thread(new Runnable() {
-					public void run() {
-						refresh();
-						dialog.dismiss();
-						handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-					}
-				}).start();
-
-			}
+			
 
 		}
 	};
@@ -267,8 +275,18 @@ public class Main extends Activity {
 		}
 
 	};
+	
+	public void refresh(View v) {
+		// Action bar passes a "View" parameter - this merely redirects.
+		// progressbar doesn't seem to do anything - it was an element copied over from the Google IO app.
+		ProgressBar progressbar = (ProgressBar) findViewById(R.id.title_refresh_progress);
+		progressbar.setVisibility(View.VISIBLE);
+		refresh();
+		progressbar.setVisibility(View.GONE);
+	}
 
 	public void refresh() {
+		
 		wallpapers.clear();
 		try {
 			JSONObject jo = GetReddit.getReddit(currentFeed);
