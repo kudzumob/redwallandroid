@@ -2,4 +2,13 @@
 <resources>
     
     <string name="app_name">RedWall Pro</string>
+    <string name="stream_prompt">Choose stream</string>
+    <string-array name="streams_array">
+        <item>Hot</item>
+        <item>New</item>
+        <item>Top Today</item>
+        <item>Top Week</item>
+        <item>Top Month</item>
+        <item>Top Year</item>
+    </string-array>
 </resources>

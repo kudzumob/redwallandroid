@@ -8,6 +8,9 @@
 package com.kudzu.android.redwall.pro;
 
 public final class R {
+    public static final class array {
+        public static final int streams_array=0x7f060000;
+    }
     public static final class attr {
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
@@ -84,41 +87,49 @@ containing a value of this type.
         public static final int ic_title_refresh_light=0x7f020005;
         public static final int icon=0x7f020006;
         public static final int nothumb=0x7f020007;
-        public static final int title_button=0x7f020008;
-        public static final int title_logo=0x7f020009;
+        public static final int src_title_logo=0x7f020008;
+        public static final int title_button=0x7f020009;
+        public static final int title_logo=0x7f02000a;
     }
     public static final class id {
-        public static final int btn_title_refresh=0x7f070006;
-        public static final int cmdhot=0x7f070008;
-        public static final int cmdnew=0x7f070009;
-        public static final int cmdtopday=0x7f07000a;
-        public static final int cmdtopmonth=0x7f07000c;
-        public static final int cmdtopweek=0x7f07000b;
-        public static final int cmdtopyear=0x7f07000d;
-        public static final int image=0x7f070001;
-        public static final int layout_root=0x7f070000;
-        public static final int list=0x7f07000e;
-        public static final int text=0x7f070002;
-        public static final int thumb=0x7f070003;
-        public static final int title_refresh_progress=0x7f070007;
-        public static final int txtOther=0x7f070005;
-        public static final int txtTitle=0x7f070004;
+        public static final int btn_title_refresh=0x7f080008;
+        public static final int cmdhot=0x7f08000b;
+        public static final int cmdnew=0x7f08000c;
+        public static final int cmdtopday=0x7f08000d;
+        public static final int cmdtopmonth=0x7f08000f;
+        public static final int cmdtopweek=0x7f08000e;
+        public static final int cmdtopyear=0x7f080010;
+        public static final int image=0x7f080001;
+        public static final int layout_root=0x7f080000;
+        public static final int list=0x7f080011;
+        public static final int spinner_stream=0x7f080007;
+        public static final int text=0x7f080002;
+        public static final int thumb=0x7f080003;
+        public static final int titleBarLogo=0x7f080006;
+        public static final int title_refresh_progress=0x7f080009;
+        public static final int txtOther=0x7f080005;
+        public static final int txtTitle=0x7f080004;
+        public static final int viewFeeds=0x7f08000a;
     }
     public static final class layout {
-        public static final int info_dialog=0x7f030000;
-        public static final int list_item=0x7f030001;
-        public static final int main=0x7f030002;
+        public static final int actionbar_spinner_item=0x7f030000;
+        public static final int info_dialog=0x7f030001;
+        public static final int list_item=0x7f030002;
+        public static final int main=0x7f030003;
     }
     public static final class string {
         public static final int app_name=0x7f050000;
+        public static final int stream_prompt=0x7f050001;
     }
     public static final class style {
-        public static final int TitleBar=0x7f060000;
-        public static final int TitleBarAction=0x7f060004;
-        public static final int TitleBarLogo=0x7f060001;
-        public static final int TitleBarProgressIndicator=0x7f060005;
-        public static final int TitleBarSeparator=0x7f060003;
-        public static final int TitleBarSpring=0x7f060002;
+        public static final int StreamAction=0x7f070007;
+        public static final int StreamBar=0x7f070006;
+        public static final int TitleBar=0x7f070000;
+        public static final int TitleBarAction=0x7f070004;
+        public static final int TitleBarLogo=0x7f070001;
+        public static final int TitleBarProgressIndicator=0x7f070005;
+        public static final int TitleBarSeparator=0x7f070003;
+        public static final int TitleBarSpring=0x7f070002;
     }
     public static final class styleable {
         /** Attributes that can be used with a com_admob_android_ads_AdView.

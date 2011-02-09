@@ -5,16 +5,22 @@
 	android:layout_height="fill_parent">
 
 	<LinearLayout style="@style/TitleBar">
+	     
         <ImageView style="@style/TitleBarLogo"
-            android:src="@drawable/title_logo" />
-
+        	android:id="@+id/titleBarLogo"
+            android:src="@drawable/title_logo"/>
+            
         <View style="@style/TitleBarSpring" />
-
+				
+		<ImageView style="@style/TitleBarSeparator" />
+		<Spinner style="@style/TitleBarAction"
+				android:id="@+id/spinner_stream"
+				android:prompt="@string/stream_prompt"/>
+        
         <ImageView style="@style/TitleBarSeparator" />
         <ImageButton style="@style/TitleBarAction"
             android:id="@+id/btn_title_refresh"
-            android:src="@drawable/ic_title_refresh"
-            android:onClick="refresh" />
+            android:src="@drawable/ic_title_refresh"/>
         <ProgressBar style="@style/TitleBarProgressIndicator"
             android:id="@+id/title_refresh_progress"
             android:visibility="gone" />
@@ -22,22 +28,29 @@
     </LinearLayout>
 	
 
-	<HorizontalScrollView android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
-		<LinearLayout android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-			<Button android:id="@+id/cmdhot" android:text="Hot"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<Button android:id="@+id/cmdnew" android:text="New"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<Button android:id="@+id/cmdtopday" android:text="Top Today"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<Button android:id="@+id/cmdtopweek" android:text="Top Week"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<Button android:id="@+id/cmdtopmonth" android:text="Top Month"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<Button android:id="@+id/cmdtopyear" android:text="Top Year"
-				android:layout_width="wrap_content" android:layout_height="wrap_content" />
+	<HorizontalScrollView android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/viewFeeds"
+		android:visibility="gone">
+		<LinearLayout style="@style/StreamBar">
+			<Button style="@style/StreamAction"
+				android:id="@+id/cmdhot" 
+				android:text="Hot"/>
+			<Button style="@style/StreamAction"
+				android:id="@+id/cmdnew"
+				android:text="New"/>
+			<Button style="@style/StreamAction"
+				android:id="@+id/cmdtopday"
+				android:text="Top Today"/>
+			<Button style="@style/StreamAction"
+				android:id="@+id/cmdtopweek"
+				android:text="Top Week"/>
+			<Button style="@style/StreamAction"
+				android:id="@+id/cmdtopmonth"
+				android:text="Top Month"/>
+			<Button style="@style/StreamAction"
+				android:id="@+id/cmdtopyear"
+				android:text="Top Year"/>
 		</LinearLayout>
 	</HorizontalScrollView>
 

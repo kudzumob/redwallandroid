@@ -35,9 +35,12 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -57,8 +60,9 @@ public class Main extends Activity {
 	final int NOTIFY_DATASET_CHANGED = 1;
 
 	private String LOCAL_PATH = "/redwall";
-	private File EXTERNAL_STORAGE = new File(
-			Environment.getExternalStorageDirectory() + LOCAL_PATH);
+	private File EXTERNAL_STORAGE = new File(Environment
+			.getExternalStorageDirectory()
+			+ LOCAL_PATH);
 
 	String currentFeed = "http://www.reddit.com/r/redwall.json";
 
@@ -69,54 +73,7 @@ public class Main extends Activity {
 
 	ListView list;
 
-	Button cmdhot, cmdnew, cmdtopday, cmdtopweek, cmdtopmonth, cmdtopyear;
-
-	OnClickListener cmdListener = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			
-			switch (v.getId()) {
-				case R.id.cmdhot: {
-					currentFeed = "http://www.reddit.com/r/redwall/.json";
-					break;
-				}
-				
-				case R.id.cmdnew: {
-					currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new";
-					break;
-				}
-				case R.id.cmdtopday: {
-					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
-					break;
-				}
-				case R.id.cmdtopweek: {
-					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week";
-					break;
-				}
-				case R.id.cmdtopmonth: {
-					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month";
-					break;
-				}
-				case R.id.cmdtopyear: {
-					currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year";
-					break;
-				}
-			}
-			
-			dialog = ProgressDialog.show(Main.this, "",
-					"Loading. Please wait...", true);
-			new Thread(new Runnable() {
-				public void run() {
-					refresh();
-					dialog.dismiss();
-					handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-				}
-			}).start();
-
-			
-
-		}
-	};
+	ImageButton cmdActionBarRefresh;
 
 	OnCreateContextMenuListener cmListener = new OnCreateContextMenuListener() {
 
@@ -185,7 +142,8 @@ public class Main extends Activity {
 
 				OutputStream fOut = null;
 				File file = new File(EXTERNAL_STORAGE, wallpapers.get(pos)
-						.getName() + ".jpg");
+						.getName()
+						+ ".jpg");
 				fOut = new FileOutputStream(file);
 
 				bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
@@ -256,10 +214,9 @@ public class Main extends Activity {
 			 * builder.setView(layout); alertDialog = builder.create();
 			 * alertDialog.show();
 			 */
-			new AlertDialog.Builder(v.getContext())
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle("Set Wallpaper?")
-					.setMessage("Download and Set Wallpaper?")
+			new AlertDialog.Builder(v.getContext()).setIcon(
+					android.R.drawable.ic_dialog_alert).setTitle(
+					"Set Wallpaper?").setMessage("Download and Set Wallpaper?")
 					.setPositiveButton("Yes",
 							new DialogInterface.OnClickListener() {
 
@@ -275,73 +232,80 @@ public class Main extends Activity {
 		}
 
 	};
-	
-	public void refresh(View v) {
-		// Action bar passes a "View" parameter - this merely redirects.
-		// progressbar doesn't seem to do anything - it was an element copied over from the Google IO app.
-		ProgressBar progressbar = (ProgressBar) findViewById(R.id.title_refresh_progress);
-		progressbar.setVisibility(View.VISIBLE);
-		refresh();
-		progressbar.setVisibility(View.GONE);
-	}
 
 	public void refresh() {
-		
-		wallpapers.clear();
-		try {
-			JSONObject jo = GetReddit.getReddit(currentFeed);
-			JSONArray children = jo.getJSONArray("children");
-			int s = children.length();
 
-			for (int x = 0; x < s; x++) {
-				JSONObject jox = children.getJSONObject(x);
-				JSONObject joxd = jox.getJSONObject("data");
-				String title = joxd.getString("title");
-				String url = joxd.getString("url");
+		dialog = ProgressDialog.show(Main.this, "", "Loading. Please wait...",
+				true);
+		new Thread(new Runnable() {
+			public void run() {
 
-				Boolean is_self = joxd.getBoolean("is_self");
+				wallpapers.clear();
+				try {
+					JSONObject jo = GetReddit.getReddit(currentFeed);
+					JSONArray children = jo.getJSONArray("children");
+					int s = children.length();
 
-				if (!is_self) {
+					for (int x = 0; x < s; x++) {
+						JSONObject jox = children.getJSONObject(x);
+						JSONObject joxd = jox.getJSONObject("data");
+						String title = joxd.getString("title");
+						String url = joxd.getString("url");
 
-					/*
-					 * Bitmap thumb = BitmapFactory .decodeStream((InputStream)
-					 * new URL(joxd .getString("thumbnail")).getContent());
-					 */
-					if (url.startsWith("http://i.imgur.com/") || // if its ad
-																	// i.imgur.com
-							// if just on imgur.com
-							(url.startsWith("http://imgur.com/") && (url
-									.endsWith(".jpg") || url.endsWith(".png")))) {
-						Wallpaper newWp = new Wallpaper(title, url,
-								joxd.getString("thumbnail"),
-								joxd.getString("permalink"),
-								joxd.getString("name"),
-								joxd.getString("author"),
-								joxd.getInt("score"),
-								joxd.getInt("num_comments"));
-						wallpapers.add(newWp);
+						Boolean is_self = joxd.getBoolean("is_self");
+
+						if (!is_self) {
+
+							/*
+							 * Bitmap thumb = BitmapFactory
+							 * .decodeStream((InputStream) new URL(joxd
+							 * .getString("thumbnail")).getContent());
+							 */
+							if (url.startsWith("http://i.imgur.com/") || // if
+																			// its
+																			// ad
+									// i.imgur.com
+									// if just on imgur.com
+									(url.startsWith("http://imgur.com/") && (url
+											.endsWith(".jpg") || url
+											.endsWith(".png")))) {
+								Wallpaper newWp = new Wallpaper(title, url,
+										joxd.getString("thumbnail"), joxd
+												.getString("permalink"), joxd
+												.getString("name"), joxd
+												.getString("author"), joxd
+												.getInt("score"), joxd
+												.getInt("num_comments"));
+								wallpapers.add(newWp);
+							}
+						}
+
 					}
+
+					// setListAdapter(new ArrayAdapter<String>(this,
+					// R.layout.list_item,
+					// DATA));
+					// getListView().setTextFilterEnabled(true);
+
+					// txtTop.setText("");
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
+				dialog.dismiss();
+				handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
-			// setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item,
-			// DATA));
-			// getListView().setTextFilterEnabled(true);
-
-			// txtTop.setText("");
-		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		}).start();
 
 	}
 
@@ -367,15 +331,7 @@ public class Main extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_REFRESH:
-			dialog = ProgressDialog.show(Main.this, "",
-					"Loading. Please wait...", true);
-			new Thread(new Runnable() {
-				public void run() {
-					refresh();
-					dialog.dismiss();
-					handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-				}
-			}).start();
+			refresh();
 			return true;
 
 		case MENU_ABOUT:
@@ -403,29 +359,90 @@ public class Main extends Activity {
 		list.setOnItemClickListener(clickListener);
 		list.setOnCreateContextMenuListener(cmListener);
 
-		dialog = ProgressDialog.show(Main.this, "", "Loading. Please wait...",
-				true);
-		new Thread(new Runnable() {
-			public void run() {
+		//refresh();
+		//Refresh is now triggered by spinner in action bar upon startup.
+
+		cmdActionBarRefresh = (ImageButton) this
+				.findViewById(R.id.btn_title_refresh);
+		cmdActionBarRefresh.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				cmdActionBarRefresh.setVisibility(View.GONE);
+
+				ProgressBar progressbar = (ProgressBar) findViewById(R.id.title_refresh_progress);
+				progressbar.setVisibility(View.VISIBLE);
+
 				refresh();
-				dialog.dismiss();
-				handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+				
+				// How do we make the app pause until the refresh is complete?
+				// startActivityForReuslt doesn't work as we pass a "void", not
+				// an "Intent".
+
+				cmdActionBarRefresh.setVisibility(View.VISIBLE);
+				progressbar.setVisibility(View.GONE);
 			}
-		}).start();
+		});
 
-		cmdhot = (Button) this.findViewById(R.id.cmdhot);
-		cmdhot.setOnClickListener(cmdListener);
-		cmdnew = (Button) this.findViewById(R.id.cmdnew);
-		cmdnew.setOnClickListener(cmdListener);
-		cmdtopday = (Button) this.findViewById(R.id.cmdtopday);
-		cmdtopday.setOnClickListener(cmdListener);
-		cmdtopweek = (Button) this.findViewById(R.id.cmdtopweek);
-		cmdtopweek.setOnClickListener(cmdListener);
-		cmdtopmonth = (Button) this.findViewById(R.id.cmdtopmonth);
-		cmdtopmonth.setOnClickListener(cmdListener);
-		cmdtopyear = (Button) this.findViewById(R.id.cmdtopyear);
-		cmdtopyear.setOnClickListener(cmdListener);
+		Spinner streamSpinner = (Spinner) findViewById(R.id.spinner_stream);
+		ArrayAdapter<CharSequence> streamSpinnerAdapter = ArrayAdapter
+				.createFromResource(this, R.array.streams_array,
+						R.layout.actionbar_spinner_item);
+		streamSpinnerAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		streamSpinner.setAdapter(streamSpinnerAdapter);
 
+		streamSpinner
+				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+					@Override
+					public void onItemSelected(AdapterView<?> parent,
+							View view, int pos, long id) {
+						// TODO Auto-generated method stub
+						
+						//Toast.makeText(parent.getContext(), Integer.toString(pos), Toast.LENGTH_LONG)
+						//	.show();
+
+						switch (pos) {
+						case 0: {
+							currentFeed = "http://www.reddit.com/r/redwall/.json";
+							refresh();
+							break;
+						}
+						case 1: {
+							currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new";
+							refresh();
+							break;
+						}
+						case 2: {
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
+							refresh();
+							break;
+						}
+						case 3: {
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week";
+							refresh();
+							break;
+						}
+						case 4: {
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month";
+							refresh();
+							break;
+						}
+						case 5: {
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year";
+							refresh();
+						}
+					}}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> arg0) {
+						// TODO Auto-generated method stub
+
+					}
+
+				});
 	}
 
 }

@@ -32,8 +32,9 @@
         <item name="android:layout_width">@dimen/title_height</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:background">@drawable/title_button</item>
+        <item name="android:textColor">#ffffffff</item>
     </style>
-    
+
     <style name="TitleBarProgressIndicator" parent="@android:style/Widget.ProgressBar.Small">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -41,6 +42,21 @@
         <item name="android:layout_marginRight">15dip</item>
         <item name="android:layout_marginTop">14dip</item>
         <item name="android:indeterminate">true</item> 
+    </style>
+    
+    <style name="StreamBar">
+        <item name="android:id">@+id/title_container</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/title_height</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">#ffff0000</item>
+        <item name="android:layout_marginTop">1dip</item>
+    </style>
+    <style name="StreamAction">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:background">@drawable/title_button</item>
+        <item name="android:textColor">#ffffffff</item>
     </style>
     
 </resources>
