@@ -1,0 +1,19 @@
+Original:  https://github.com/kudzumob/redwallandroid
+
+RJackson's TODO:
+- Add a "Downloaded Wallpapers" view.
+- Livewallpaper based upon saved wallpapers
+- - User can select which wallpapers to show
+- - User can set interval
+- - (Non-priority) Transition effects.
+- Switch out the downloadWallpaper method for a class extending ASyncTask.  Prompt user to set wallpaper upon 	
+- - This will allow the addition of a progress-bar.
+- Edit main.refresh() to check /sdcard/.redwall/* for images & fill in the "localURI" attrib of what's already saved locally.
+
+RJ Changelog:
+* Added "localURI" and "name" attributes to "Wallpaper"
+* Added "downloadWallpaper" to main.
+* Edited "setWallpaper" to set local wallpapers.
+* Wallpapers are now downloaded to Environment.getExternalStorage() /.redwall
+* * They are named their unique identifier provided via the reddit json "name" attribute.
+* Added validation to ensure that only links prefixed with http://i.imgur.com are added to the "Wallpaper" arraylist.

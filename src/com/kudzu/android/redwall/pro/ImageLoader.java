@@ -42,7 +42,8 @@ public class ImageLoader {
 
 	final int stub_id = R.drawable.nothumb;
 
-	public void DisplayImage(WallpaperAdapter wallpaperAdapter, String url, Context ctx, ImageView imageView) {
+	public void DisplayImage(WallpaperAdapter wallpaperAdapter, String url,
+			Context ctx, ImageView imageView) {
 		if (cache.containsKey(url))
 			imageView.setImageBitmap(cache.get(url));
 		else {
@@ -207,7 +208,7 @@ public class ImageLoader {
 				imageView.setImageBitmap(bitmap);
 			else
 				imageView.setImageResource(stub_id);
-			
+
 			imageView.postInvalidate();
 		}
 	}
