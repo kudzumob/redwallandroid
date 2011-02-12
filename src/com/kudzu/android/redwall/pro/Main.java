@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +42,7 @@ import android.widget.AdapterView;
 
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -48,8 +50,6 @@ import android.widget.Spinner;
 
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
-
-
 
 public class Main extends Activity {
 	protected static final int MENU_COMMENT = Menu.FIRST + 1;
@@ -60,6 +60,8 @@ public class Main extends Activity {
 	protected static final int MENU_REFRESH = Menu.FIRST + 10;
 	protected static final int MENU_QUIT = Menu.FIRST + 11;
 	protected static final int MENU_ABOUT = Menu.FIRST + 12;
+	protected static final int MENU_SEARCH = Menu.FIRST + 13;
+	protected static final int MENU_PREF = Menu.FIRST + 14;
 
 	final int NOTIFY_DATASET_CHANGED = 1;
 
@@ -68,16 +70,19 @@ public class Main extends Activity {
 	private File EXTERNAL_STORAGE = new File(
 			Environment.getExternalStorageDirectory() + LOCAL_PATH);
 
+	int pref_count = 50;// reddits default
+
 	String currentFeed = "http://www.reddit.com/r/redwall.json";
 
 	ProgressDialog dialog;
-
 	WallpaperAdapter adapt;
 	ArrayList<Wallpaper> wallpapers = new ArrayList<Wallpaper>();
-
 	ListView list;
-
 	ImageButton cmdActionBarRefresh;
+
+	Spinner streamSpinner;
+	int stream_ui_curpos = 0, stream_ui_lastpos = 0;
+	boolean dont_refresh = false, dont_promt_search = false;
 
 	OnCreateContextMenuListener cmListener = new OnCreateContextMenuListener() {
 
@@ -239,82 +244,114 @@ public class Main extends Activity {
 
 	};
 
+	public void search() {
+		if (!dont_promt_search) {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			final EditText input = new EditText(this);
+			alert.setTitle("Search");
+			alert.setView(input);
+			alert.setPositiveButton("Go",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							String value = input.getText().toString().trim();
+							currentFeed = "http://www.reddit.com/r/redwall/search.json?q="
+									+ value + "&restrict_sr=on";
+
+							streamSpinner.setSelection(6);// search gets trigger
+															// again from this.
+															// but we set this
+															// for calls from
+															// search button
+							dont_promt_search = true;
+							refresh();
+						}
+					});
+
+			alert.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							dialog.cancel();
+							dont_refresh = true;
+							stream_ui_curpos = stream_ui_lastpos;
+							streamSpinner.setSelection(stream_ui_curpos);
+						}
+					});
+			alert.show();
+		} else {
+			dont_promt_search = false;
+		}
+	}
+
 	public void refresh() {
 
-		dialog = ProgressDialog.show(Main.this, "", "Loading. Please wait...",
-				true);
-		new Thread(new Runnable() {
-			public void run() {
+		if (!dont_refresh) {
 
-				wallpapers.clear();
-				try {
-					JSONObject jo = GetReddit.getReddit(currentFeed);
-					JSONArray children = jo.getJSONArray("children");
-					int s = children.length();
+			dialog = ProgressDialog.show(Main.this, "",
+					"Loading. Please wait...", true);
+			new Thread(new Runnable() {
+				public void run() {
 
-					for (int x = 0; x < s; x++) {
-						JSONObject jox = children.getJSONObject(x);
-						JSONObject joxd = jox.getJSONObject("data");
-						String title = joxd.getString("title");
-						String url = joxd.getString("url");
+					wallpapers.clear();
+					try {
+						JSONObject jo = GetReddit.getReddit(currentFeed);
+						JSONArray children = jo.getJSONArray("children");
+						int s = children.length();
 
-						Boolean is_self = joxd.getBoolean("is_self");
+						for (int x = 0; x < s; x++) {
+							JSONObject jox = children.getJSONObject(x);
+							JSONObject joxd = jox.getJSONObject("data");
+							String title = joxd.getString("title");
+							String url = joxd.getString("url");
 
-						if (!is_self) {
+							Boolean is_self = joxd.getBoolean("is_self");
 
-							/*
-							 * Bitmap thumb = BitmapFactory
-							 * .decodeStream((InputStream) new URL(joxd
-							 * .getString("thumbnail")).getContent());
-							 */
-							if (url.startsWith("http://i.imgur.com/")
-									|| // if
-										// its
-										// ad
-									// i.imgur.com
-									// if just on imgur.com
-									(url.startsWith("http://imgur.com/") && (url
-											.endsWith(".jpg") || url
-											.endsWith(".png")))) {
-								Wallpaper newWp = new Wallpaper(title, url,
-										joxd.getString("thumbnail"), joxd
-												.getString("permalink"), joxd
-												.getString("name"), joxd
-												.getString("author"), joxd
-												.getInt("score"), joxd
-												.getInt("num_comments"));
-								wallpapers.add(newWp);
+							if (!is_self) {
+
+								if (url.startsWith("http://i.imgur.com/")
+										||
+										// i.imgur.com
+										// if just on imgur.com
+										(url.startsWith("http://imgur.com/") && (url
+												.endsWith(".jpg") || url
+												.endsWith(".png")))) {
+									Wallpaper newWp = new Wallpaper(title, url,
+											joxd.getString("thumbnail"), joxd
+													.getString("permalink"),
+											joxd.getString("name"), joxd
+													.getString("author"), joxd
+													.getInt("score"), joxd
+													.getInt("num_comments"));
+									wallpapers.add(newWp);
+								}
 							}
+
 						}
+
+					} catch (ApiException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 
 					}
 
-					// setListAdapter(new ArrayAdapter<String>(this,
-					// R.layout.list_item,
-					// DATA));
-					// getListView().setTextFilterEnabled(true);
-
-					// txtTop.setText("");
-				} catch (ApiException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-
+					dialog.dismiss();
+					handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 				}
+			}).start();
+		} else {
+			dont_refresh = false;
 
-				dialog.dismiss();
-				handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-			}
-		}).start();
-
+		}
 	}
 
 	Handler handler = new Handler() {
@@ -331,8 +368,14 @@ public class Main extends Activity {
 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_REFRESH, 0, "Refresh");
-		menu.add(0, MENU_ABOUT, 0, "About / FAQ");
+		menu.add(0, MENU_SEARCH, 0, "Search");
+		
+		
 		menu.add(0, MENU_QUIT, 0, "Quit");
+		menu.add(0, MENU_ABOUT, 0, "About / FAQ");
+		
+		menu.add(0, MENU_PREF, 0, "Options");
+
 		return true;
 	}
 
@@ -340,6 +383,9 @@ public class Main extends Activity {
 		switch (item.getItemId()) {
 		case MENU_REFRESH:
 			refresh();
+			return true;
+		case MENU_SEARCH:
+			search();
 			return true;
 
 		case MENU_ABOUT:
@@ -349,8 +395,24 @@ public class Main extends Activity {
 		case MENU_QUIT:
 			this.finish();
 			return true;
+			
+			
+		case MENU_PREF:
+			this.finish();
+			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+			search();
+
+			return false;
+		} else {
+			return super.onKeyUp(keyCode, event);
+		}
 	}
 
 	@Override
@@ -360,7 +422,7 @@ public class Main extends Activity {
 
 		if (!EXTERNAL_STORAGE.exists())
 			EXTERNAL_STORAGE.mkdirs();
-		
+
 		list = (ListView) this.findViewById(R.id.list);
 		int layoutID = R.layout.list_item;
 		adapt = new WallpaperAdapter(this, layoutID, wallpapers);
@@ -394,7 +456,7 @@ public class Main extends Activity {
 			}
 		});
 
-		Spinner streamSpinner = (Spinner) findViewById(R.id.spinner_stream);
+		streamSpinner = (Spinner) findViewById(R.id.spinner_stream);
 		ArrayAdapter<CharSequence> streamSpinnerAdapter = ArrayAdapter
 				.createFromResource(this, R.array.streams_array,
 						R.layout.actionbar_spinner_item);
@@ -414,40 +476,49 @@ public class Main extends Activity {
 						// Integer.toString(pos), Toast.LENGTH_LONG)
 						// .show();
 
+						stream_ui_lastpos = stream_ui_curpos;
+						stream_ui_curpos = pos;
+
 						switch (pos) {
 						case 0: {
-							currentFeed = "http://www.reddit.com/r/redwall/.json";
+							currentFeed = "http://www.reddit.com/r/redwall/.json?limit="
+									+ pref_count;
 							refresh();
 							break;
 						}
 						case 1: {
-							currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new";
+							currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new&limit="
+									+ pref_count;
 							refresh();
 							break;
 						}
 						case 2: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day";
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day&limit="
+									+ pref_count;
 							refresh();
 							break;
 						}
 						case 3: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week";
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week&limit="
+									+ pref_count;
 							refresh();
 							break;
 						}
 						case 4: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month";
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month&limit="
+									+ pref_count;
 							refresh();
 							break;
 						}
 						case 5: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year";
+							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year&limit="
+									+ pref_count;
 							refresh();
 							break;
 						}
 						case 6: {
-							currentFeed = "http://www.reddit.com/r/redwall/search.json?q=wood&restrict_sr=on";
-							refresh();
+							search();
+
 							break;
 						}
 						}
