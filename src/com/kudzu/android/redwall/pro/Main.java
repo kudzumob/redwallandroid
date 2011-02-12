@@ -245,43 +245,39 @@ public class Main extends Activity {
 	};
 
 	public void search() {
-		if (!dont_promt_search) {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			final EditText input = new EditText(this);
-			alert.setTitle("Search");
-			alert.setView(input);
-			alert.setPositiveButton("Go",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							String value = input.getText().toString().trim();
-							currentFeed = "http://www.reddit.com/r/redwall/search.json?q="
-									+ value + "&restrict_sr=on";
 
-							streamSpinner.setSelection(6);// search gets trigger
-															// again from this.
-															// but we set this
-															// for calls from
-															// search button
-							dont_promt_search = true;
-							refresh();
-						}
-					});
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		final EditText input = new EditText(this);
+		alert.setTitle("Search");
+		alert.setView(input);
+		alert.setPositiveButton("Go", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				String value = input.getText().toString().trim();
+				currentFeed = "http://www.reddit.com/r/redwall/search.json?q="
+						+ value + "&restrict_sr=on";
 
-			alert.setNegativeButton("Cancel",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							dialog.cancel();
-							dont_refresh = true;
-							stream_ui_curpos = stream_ui_lastpos;
-							streamSpinner.setSelection(stream_ui_curpos);
-						}
-					});
-			alert.show();
-		} else {
-			dont_promt_search = false;
-		}
+				dont_promt_search = true;
+				streamSpinner.setSelection(6);// search gets trigger
+												// again from this.
+												// but we set this
+												// for calls from
+												// search button
+
+				refresh();
+			}
+		});
+
+		alert.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.cancel();
+						dont_refresh = true;
+						stream_ui_curpos = stream_ui_lastpos;
+						streamSpinner.setSelection(stream_ui_curpos);
+					}
+				});
+		alert.show();
+
 	}
 
 	public void refresh() {
@@ -369,11 +365,10 @@ public class Main extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_REFRESH, 0, "Refresh");
 		menu.add(0, MENU_SEARCH, 0, "Search");
-		
-		
+
 		menu.add(0, MENU_QUIT, 0, "Quit");
 		menu.add(0, MENU_ABOUT, 0, "About / FAQ");
-		
+
 		menu.add(0, MENU_PREF, 0, "Options");
 
 		return true;
@@ -395,8 +390,7 @@ public class Main extends Activity {
 		case MENU_QUIT:
 			this.finish();
 			return true;
-			
-			
+
 		case MENU_PREF:
 			this.finish();
 			return true;
@@ -517,8 +511,12 @@ public class Main extends Activity {
 							break;
 						}
 						case 6: {
-							search();
-
+							
+							if (!dont_promt_search) {
+								search();
+							} else {
+								dont_promt_search = false;
+							}
 							break;
 						}
 						}
