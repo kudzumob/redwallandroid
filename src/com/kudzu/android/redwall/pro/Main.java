@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.WallpaperManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -81,6 +82,9 @@ public class Main extends Activity {
 	Spinner streamSpinner;
 	int stream_ui_curpos = 0, stream_ui_lastpos = 0;
 	boolean dont_refresh = false, dont_promt_search = false;
+
+	int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+	WallpaperManager wallpaperManager;// = WallpaperManager.getInstance(this);
 
 	OnCreateContextMenuListener cmListener = new OnCreateContextMenuListener() {
 
@@ -183,7 +187,13 @@ public class Main extends Activity {
 			if (uri != null) {
 				Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(
 						uri));
-				getApplicationContext().setWallpaper(bitmap);
+				if (currentapiVersion >= 5) {
+					wallpaperManager.setBitmap(bitmap);
+				} else {
+					getApplicationContext().setWallpaper(bitmap);
+
+				}
+
 				Toast.makeText(Main.this, "Wallpaper Updated",
 						Toast.LENGTH_LONG).show();
 			} else {
@@ -280,7 +290,7 @@ public class Main extends Activity {
 
 	public void refresh() {
 
-		if (!dont_refresh) {
+		if (!dont_refresh && currentFeed != "local") {//the currentFeed check is for the fact i havent made this work
 
 			dialog = ProgressDialog.show(Main.this, "",
 					"Loading. Please wait...", true);
@@ -420,6 +430,10 @@ public class Main extends Activity {
 		if (!EXTERNAL_STORAGE.exists())
 			EXTERNAL_STORAGE.mkdirs();
 
+		if (currentapiVersion >= 5) {
+			wallpaperManager = WallpaperManager.getInstance(this);
+		}
+
 		list = (ListView) this.findViewById(R.id.list);
 		int layoutID = R.layout.list_item;
 		adapt = new WallpaperAdapter(this, layoutID, wallpapers);
@@ -528,7 +542,8 @@ public class Main extends Activity {
 					@Override
 					public void onNothingSelected(AdapterView<?> arg0) {
 						// TODO Auto-generated method stub
-
+						Toast.makeText(Main.this, "??", Toast.LENGTH_LONG)
+								.show();
 					}
 
 				});
