@@ -33,7 +33,7 @@ public class ImageLoader {
 				android.os.Environment.MEDIA_MOUNTED))
 			cacheDir = new File(
 					android.os.Environment.getExternalStorageDirectory(),
-					"LazyList");
+					".RedwallThumbCache");
 		else
 			cacheDir = context.getCacheDir();
 		if (!cacheDir.exists())
@@ -97,27 +97,9 @@ public class ImageLoader {
 	private Bitmap decodeFile(File f) {
 		try {
 			// decode image size
-			BitmapFactory.Options o = new BitmapFactory.Options();
-			o.inJustDecodeBounds = true;
-			BitmapFactory.decodeStream(new FileInputStream(f), null, o);
+			BitmapFactory.Options o  = new BitmapFactory.Options();
 
-			// Find the correct scale value. It should be the power of 2.
-			final int REQUIRED_SIZE = 70;
-			int width_tmp = o.outWidth, height_tmp = o.outHeight;
-			int scale = 1;
-			while (true) {
-				if (width_tmp / 2 < REQUIRED_SIZE
-						|| height_tmp / 2 < REQUIRED_SIZE)
-					break;
-				width_tmp /= 2;
-				height_tmp /= 2;
-				scale *= 2;
-			}
-
-			// decode with inSampleSize
-			BitmapFactory.Options o2 = new BitmapFactory.Options();
-			o2.inSampleSize = scale;
-			return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+			return BitmapFactory.decodeStream(new FileInputStream(f), null, o);
 		} catch (FileNotFoundException e) {
 		}
 		return null;

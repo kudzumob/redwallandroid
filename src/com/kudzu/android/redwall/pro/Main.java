@@ -14,9 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.kudzu.android.redwall.pro.GetReddit.ApiException;
-import com.kudzu.android.redwall.pro.GetReddit.ParseException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -30,6 +27,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -298,8 +296,15 @@ public class Main extends Activity {
 						for (int x = 0; x < s; x++) {
 							JSONObject jox = children.getJSONObject(x);
 							JSONObject joxd = jox.getJSONObject("data");
+
 							String title = joxd.getString("title");
 							String url = joxd.getString("url");
+							String name = joxd.getString("name");
+							String thumbnail = joxd.getString("thumbnail");
+							String perma = joxd.getString("permalink");
+							String author = joxd.getString("author");
+							int score = joxd.getInt("score");
+							int num_comm = joxd.getInt("num_comments");
 
 							Boolean is_self = joxd.getBoolean("is_self");
 
@@ -313,27 +318,25 @@ public class Main extends Activity {
 												.endsWith(".jpg") || url
 												.endsWith(".png")))) {
 									Wallpaper newWp = new Wallpaper(title, url,
-											joxd.getString("thumbnail"), joxd
-													.getString("permalink"),
-											joxd.getString("name"), joxd
-													.getString("author"), joxd
-													.getInt("score"), joxd
-													.getInt("num_comments"));
+											thumbnail, perma, name, author,
+											score, num_comm);
+
+									File filex = new File(EXTERNAL_STORAGE,
+											name + ".jpg");
+									if (filex.exists()) {
+										newWp.setLocalURI(filex
+												.getAbsolutePath());
+										// Log.d("filez","we have it");
+									} else {
+										// Log.d("filez","we dont!");
+									}
+
 									wallpapers.add(newWp);
 								}
 							}
 
 						}
 
-					} catch (ApiException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -486,32 +489,32 @@ public class Main extends Activity {
 							refresh();
 							break;
 						}
+
 						case 2: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=day&limit="
-									+ pref_count;
-							refresh();
-							break;
-						}
-						case 3: {
 							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week&limit="
 									+ pref_count;
 							refresh();
 							break;
 						}
-						case 4: {
+						case 3: {
 							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month&limit="
 									+ pref_count;
 							refresh();
 							break;
 						}
-						case 5: {
+						case 4: {
 							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year&limit="
 									+ pref_count;
 							refresh();
 							break;
 						}
+						case 5: {
+							currentFeed = "local";
+							refresh();
+							break;
+						}
 						case 6: {
-							
+
 							if (!dont_promt_search) {
 								search();
 							} else {
