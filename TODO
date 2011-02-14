@@ -1,0 +1,46 @@
+
+Here is the official RedWall ToDo list:
+
+
+Fix SetWallpaper:
+	Use WallpaperManage for android 2.0+
+	current way for 1.6 and down
+	
+
+Search
+	
+
+Better Preview Screen
+	Bigger Thumbnail gen (WebSerivce: Google App Engine)
+	
+	
+Installed Wallpaper List
+	Checking for local uri on update
+
+
+Dialogs
+	-Help
+	-First Run
+	-Warning
+
+Options 
+	-Wifi Only
+	-View Count
+	-Other Reddits (redwallnsfw)   
+	 
+
+
+Live Wallpaper (auto switch on intervals)
+
+
+
+Wallpaper Selector Activity/Intent
+	(To use with other apps or get called from set wall paper intent)
+
+
+
+Speed issues:
+	Reddit Caching (WebSerivce: Google App Engine)
+	
+	
+	
