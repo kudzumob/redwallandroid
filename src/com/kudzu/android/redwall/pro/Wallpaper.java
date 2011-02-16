@@ -14,6 +14,8 @@ public class Wallpaper {
 	private int score;
 	private int comments;
 
+	public boolean isLocal = false;
+	
 	public Wallpaper(String title,String img,String thumb,String src,String name,String submitor,int score,int comments){
 		this.title = title;
 		this.img = img;
@@ -25,6 +27,15 @@ public class Wallpaper {
 		this.comments= comments;
 	}
 
+	public Wallpaper(String title,String local_uri,String src,String thumb){
+		this.isLocal = true;
+		this.title = title;
+		this.localURI = local_uri;
+		this.src = src;		
+		this.thumb = thumb;		
+		
+	}
+	
 	public void setTitle(String title) {
 		this.title = title;
 	}

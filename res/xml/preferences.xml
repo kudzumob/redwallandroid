@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/pref_category_mainpref_title">
+
+		<ListPreference android:key="pref_tap_action"
+			android:title="@string/pref_tap_action_title" android:summary="@string/pref_tap_action_summary"
+			android:entries="@array/pref_tap_action_entries" android:entryValues="@array/pref_tap_action_values"
+			android:defaultValue="set" />
+
+		<ListPreference android:key="pref_count"
+			android:title="@string/pref_counts_title" 
+			android:summary="@string/pref_counts_summary"
+			android:entries="@array/pref_counts" 
+			android:entryValues="@array/pref_counts"
+			
+			android:defaultValue="50" />
+
+
+		<CheckBoxPreference android:key="pref_use_compact"
+			android:title="@string/pref_use_compact_title" android:summaryOn="@string/pref_use_compact_summary_on"
+			android:summaryOff="@string/pref_use_compact_summary_off"
+			android:defaultValue="true" />
+
+
+
+	</PreferenceCategory>
+	
+	<!-- 
+	<PreferenceCategory android:title="@string/pref_category_reddits_title">
+		<CheckBoxPreference android:key="pref_r_redwall"
+			android:title="@string/pref_r_redwall_title" android:defaultValue="true" />
+
+		<CheckBoxPreference android:key="pref_r_redwallnsfw"
+			android:title="@string/pref_r_redwallnsfw_title" android:defaultValue="false" />
+ 
+
+	</PreferenceCategory>
+ -->
+	<PreferenceCategory android:title="@string/pref_category_info_title">
+
+		<Preference android:key="pref_version" android:title="@string/pref_version_title"
+			android:summary="@string/pref_version_summary" />
+
+
+		<Preference android:key="pref_clear_cache" android:title="@string/pref_clear_cache" />
+		<Preference android:key="pref_clear_wp" android:title="@string/pref_clear_wp" />
+ 
+	</PreferenceCategory>
+</PreferenceScreen>

@@ -55,19 +55,24 @@ public class WallpaperAdapter extends ArrayAdapter<Wallpaper> {
 
 		Wallpaper item = getItem(position);
 		String title = item.getTitle();
-		String url = item.getImg();
 		String thumb = item.getThumb();
-		String author = item.getSubmitor();
-		String other = item.getScore() + " points, " + item.getComments()
-				+ " comments, by " + author;
 
-		
+		if (item.isLocal) {
+			holder.txtOther.setText(" ");
+		} else {
+			String author = item.getSubmitor();
+			String other = item.getScore() + " points, " + item.getComments()
+					+ " comments, by " + author;
+			holder.txtOther.setText(other);
+			
+		}
+
 		holder.imgThumb.setTag(thumb);
 		imageLoader.DisplayImage(this, thumb, ctx, holder.imgThumb);
-		
+
 		// imgView.setImageBitmap(thumb);
 		holder.txtTitle.setText(title);
-		holder.txtOther.setText(other);
+
 		return vi;
 	}
 }

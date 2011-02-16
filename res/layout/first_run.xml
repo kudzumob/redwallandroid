@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VerticalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res/com.kudzu.android.redwall.pro"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
+		<Button style="@style/StreamAction" android:id="@+id/cmdhot"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="Hot" />
+
+	</LinearLayout>
+
+
+</VerticalScrollView>

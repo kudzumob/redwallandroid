@@ -10,7 +10,76 @@
         <item>Top Week</item>
         <item>Top Month</item>
         <item>Top Year</item>
-        <item>Local Wallpapers</item>
+        <item>Local</item>
         <item>Search</item>
     </string-array>
+    
+    
+    <string-array name="pref_actions_array">
+        <item>Download  Set</item>
+        <item>Download</item>
+        <item>Vote / Comment / Report</item>
+        <item>Open In Browser</item>
+    </string-array>
+    
+    
+    
+	<string name="preferences">Preferences</string>
+	<string name="pref_category_mainpref_title">RedWall Settings</string>
+	<string name="pref_tap_action_title">Tap action</string>
+	<string name="pref_tap_action_summary">Action to perform when an entry is tapped</string>
+	
+	<string name="pref_use_compact_title">Use Reddit Compact</string>
+	<string name="pref_use_compact_summary_on">Load Mobile Reddit</string>
+	<string name="pref_use_compact_summary_off">Load Desktop Reddit</string>
+
+
+
+	<string name="pref_category_reddits_title">Subscribed Reddits</string>
+	<string name="pref_r_redwall_title">/r/RedWall</string>
+	<string name="pref_r_redwallnsfw_title">/r/RedWallNSFW</string>
+	
+	
+	
+	
+	<string name="pref_clear_cache">Clear Cache</string>
+	<string name="pref_clear_wp">Clear Wallpapers</string>
+	
+	
+	<string name="pref_category_info_title">RedWall information</string>
+	<string name="pref_version_title">RedWall %s</string>
+	<string name="pref_version_summary">Database version %s</string>
+
+
+	<string name="notification_text">%s has been granted Superuser permissions</string>
+	
+	
+	 <string-array name="pref_tap_action_entries">
+        <item>Download Wallpaper</item>
+        <item>Set Wallpaper</item>
+        <item>Vote / Comment / Report</item>
+        <item>Open in Browser</item>
+    </string-array>
+
+    <!-- Do not translate. -->
+    <string-array name="pref_tap_action_values">
+        <item>download</item>
+        <item>set</item>
+        <item>comment</item>
+        <item>open</item>
+    </string-array>
+
+  	<string name="pref_counts_title"># of Wallpapers to Load</string>
+	<string name="pref_counts_summary">How many wallpapers to request at a time</string>
+    <string-array name="pref_counts">
+        <item>20</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+        <item>150</item>
+    </string-array>
+
+
+    
+    
 </resources>

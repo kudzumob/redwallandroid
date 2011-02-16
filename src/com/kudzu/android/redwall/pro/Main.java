@@ -18,8 +18,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.WallpaperManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -27,6 +30,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 
 import android.util.Log;
 import android.view.ContextMenu;
@@ -39,12 +43,15 @@ import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SectionIndexer;
 import android.widget.Spinner;
 
 import android.widget.Toast;
@@ -62,29 +69,41 @@ public class Main extends Activity {
 	protected static final int MENU_SEARCH = Menu.FIRST + 13;
 	protected static final int MENU_PREF = Menu.FIRST + 14;
 
+	final int ACTION_DOWNLOAD_SET = 1;
+	final int ACTION_DOWNLOAD = 2;
+	final int ACTION_COMMENT = 3;
+	final int ACTION_OPEN = 4;
+
 	final int NOTIFY_DATASET_CHANGED = 1;
 
-	private String LOCAL_PATH = "/redwall";
-
-	private File EXTERNAL_STORAGE = new File(
-			Environment.getExternalStorageDirectory() + LOCAL_PATH);
-
-	int pref_count = 50;// reddits default
-
-	String currentFeed = "http://www.reddit.com/r/redwall.json";
-
 	ProgressDialog dialog;
+
+	DBHelper mDB;
+
 	WallpaperAdapter adapt;
 	ArrayList<Wallpaper> wallpapers = new ArrayList<Wallpaper>();
+
 	ListView list;
 	ImageButton cmdActionBarRefresh;
-
 	Spinner streamSpinner;
+
 	int stream_ui_curpos = 0, stream_ui_lastpos = 0;
 	boolean dont_refresh = false, dont_promt_search = false;
 
+	// Set Wallpaper stuff, version # > 5 we use WallpaperManage
 	int currentapiVersion = android.os.Build.VERSION.SDK_INT;
 	WallpaperManager wallpaperManager;// = WallpaperManager.getInstance(this);
+
+	// Prefrences
+	SharedPreferences mPrefs;
+
+	int pref_count = 50;// defaults are set in update_prefs()
+	boolean pref_frist_run = true;
+	boolean pref_use_compact = true;
+	String pref_tap_action = "set";
+	String pref_active_reddits = "redwall";
+
+	String currentFeed = "";// this get sets at run via refresh()
 
 	OnCreateContextMenuListener cmListener = new OnCreateContextMenuListener() {
 
@@ -136,12 +155,14 @@ public class Main extends Activity {
 	}
 
 	private void open_comment(int id) {
-		open_web("http://www.reddit.com" + wallpapers.get(id).getSrc()
-				+ ".compact");
+		String url = "http://www.reddit.com" + wallpapers.get(id).getSrc();
+		if (pref_use_compact)
+			url += ".compact";
+		open_web(url);
 	}
 
 	private void open_about() {
-		open_web("http://rootskudzumob.appspot.com/help.jsp?aid=ag1yb290c2t1ZHp1bW9icgwLEgRBcHBNGPnMAww");
+		open_web(Constants.HELP_URL);
 	}
 
 	public void downloadWallpaper(int pos) {
@@ -152,9 +173,10 @@ public class Main extends Activity {
 						.decodeStream((InputStream) new URL(url).getContent());
 
 				OutputStream fOut = null;
-				File file = new File(EXTERNAL_STORAGE, wallpapers.get(pos)
+				File file = new File(Constants.EXTERNAL_STORAGE, wallpapers
+						.get(pos)
 
-				.getName() + ".jpg");
+						.getName() + ".jpg");
 
 				fOut = new FileOutputStream(file);
 
@@ -164,6 +186,13 @@ public class Main extends Activity {
 
 				// MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
 				wallpapers.get(pos).setLocalURI(file.getAbsolutePath());
+
+				String title = wallpapers.get(pos).getTitle();
+				String local_uri = wallpapers.get(pos).getLocalURI();
+				String perma_link = wallpapers.get(pos).getSrc();
+				String thumb = wallpapers.get(pos).getThumb();
+
+				mDB.addWp(title, local_uri, perma_link, thumb);
 
 				Toast.makeText(Main.this, wallpapers.get(pos).getLocalURI(),
 						Toast.LENGTH_LONG).show();
@@ -232,22 +261,41 @@ public class Main extends Activity {
 			 * builder.setView(layout); alertDialog = builder.create();
 			 * alertDialog.show();
 			 */
-			new AlertDialog.Builder(v.getContext())
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle("Set Wallpaper?")
-					.setMessage("Download and Set Wallpaper?")
-					.setPositiveButton("Yes",
-							new DialogInterface.OnClickListener() {
+			update_prefs();
 
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									setWallpaper(gpos);
+			Log.d("Pref", pref_tap_action);
+			Log.d("Pref", pref_tap_action);
+			Log.d("Pref", pref_tap_action);
+			Log.d("Pref", pref_tap_action);
+			Log.d("Pref", pref_tap_action);
+			Log.d("Pref", pref_tap_action);
 
-								}
+			if ("set".equals(pref_tap_action)) {
+				new AlertDialog.Builder(v.getContext())
+						.setIcon(android.R.drawable.ic_dialog_alert)
+						.setTitle("Set Wallpaper?")
+						.setMessage("Download and Set Wallpaper?")
+						.setPositiveButton("Yes",
+								new DialogInterface.OnClickListener() {
 
-							}).setNegativeButton("No", null).show();
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										setWallpaper(gpos);
 
+									}
+
+								}).setNegativeButton("No", null).show();
+			} else if ("download".equals(pref_tap_action)) {
+				downloadWallpaper(pos);
+
+			} else if ("comment".equals(pref_tap_action)) {
+				open_comment(pos);
+
+			} else if ("open".equals(pref_tap_action)) {
+				open_image(pos);
+
+			}
 		}
 
 	};
@@ -261,8 +309,8 @@ public class Main extends Activity {
 		alert.setPositiveButton("Go", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String value = input.getText().toString().trim();
-				currentFeed = "http://www.reddit.com/r/redwall/search.json?q="
-						+ value + "&restrict_sr=on";
+				currentFeed = "http://www.reddit.com/r/" + pref_active_reddits
+						+ "/search.json?q=" + value + "&restrict_sr=on";
 
 				dont_promt_search = true;
 				streamSpinner.setSelection(6);// search gets trigger
@@ -290,69 +338,82 @@ public class Main extends Activity {
 
 	public void refresh() {
 
-		if (!dont_refresh && currentFeed != "local") {//the currentFeed check is for the fact i havent made this work
+		if (!dont_refresh) {// the currentFeed check
+							// is for the fact i
+							// havent made this work
+
+			
+			
+			update_prefs();
 
 			dialog = ProgressDialog.show(Main.this, "",
 					"Loading. Please wait...", true);
+
 			new Thread(new Runnable() {
 				public void run() {
 
 					wallpapers.clear();
-					try {
-						JSONObject jo = GetReddit.getReddit(currentFeed);
-						JSONArray children = jo.getJSONArray("children");
-						int s = children.length();
 
-						for (int x = 0; x < s; x++) {
-							JSONObject jox = children.getJSONObject(x);
-							JSONObject joxd = jox.getJSONObject("data");
+					if ("local".equals(currentFeed)) {
+						wallpapers.addAll(mDB.getAllWp());
 
-							String title = joxd.getString("title");
-							String url = joxd.getString("url");
-							String name = joxd.getString("name");
-							String thumbnail = joxd.getString("thumbnail");
-							String perma = joxd.getString("permalink");
-							String author = joxd.getString("author");
-							int score = joxd.getInt("score");
-							int num_comm = joxd.getInt("num_comments");
+					} else {
+						try {
+							JSONObject jo = GetReddit.getReddit(currentFeed+"limit="+pref_count);
+							JSONArray children = jo.getJSONArray("children");
+							int s = children.length();
 
-							Boolean is_self = joxd.getBoolean("is_self");
+							for (int x = 0; x < s; x++) {
+								JSONObject jox = children.getJSONObject(x);
+								JSONObject joxd = jox.getJSONObject("data");
 
-							if (!is_self) {
+								String title = joxd.getString("title");
+								String url = joxd.getString("url");
+								String name = joxd.getString("name");
+								String thumbnail = joxd.getString("thumbnail");
+								String perma = joxd.getString("permalink");
+								String author = joxd.getString("author");
+								int score = joxd.getInt("score");
+								int num_comm = joxd.getInt("num_comments");
 
-								if (url.startsWith("http://i.imgur.com/")
-										||
-										// i.imgur.com
-										// if just on imgur.com
-										(url.startsWith("http://imgur.com/") && (url
-												.endsWith(".jpg") || url
-												.endsWith(".png")))) {
-									Wallpaper newWp = new Wallpaper(title, url,
-											thumbnail, perma, name, author,
-											score, num_comm);
+								Boolean is_self = joxd.getBoolean("is_self");
 
-									File filex = new File(EXTERNAL_STORAGE,
-											name + ".jpg");
-									if (filex.exists()) {
-										newWp.setLocalURI(filex
-												.getAbsolutePath());
-										// Log.d("filez","we have it");
-									} else {
-										// Log.d("filez","we dont!");
+								if (!is_self) {
+
+									if (url.startsWith("http://i.imgur.com/")
+											||
+											// i.imgur.com
+											// if just on imgur.com
+											(url.startsWith("http://imgur.com/") && (url
+													.endsWith(".jpg") || url
+													.endsWith(".png")))) {
+										Wallpaper newWp = new Wallpaper(title,
+												url, thumbnail, perma, name,
+												author, score, num_comm);
+
+										File filex = new File(
+												Constants.EXTERNAL_STORAGE,
+												name + ".jpg");
+										if (filex.exists()) {
+											newWp.setLocalURI(filex
+													.getAbsolutePath());
+											// Log.d("filez","we have it");
+										} else {
+											// Log.d("filez","we dont!");
+										}
+
+										wallpapers.add(newWp);
 									}
-
-									wallpapers.add(newWp);
 								}
+
 							}
 
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+
 						}
-
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-
 					}
-
 					dialog.dismiss();
 					handler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 				}
@@ -374,6 +435,15 @@ public class Main extends Activity {
 			}
 		}
 	};
+
+	public void update_prefs() {
+		pref_count = Integer.parseInt(mPrefs.getString("pref_count", "50"));
+		pref_use_compact = mPrefs.getBoolean("pref_use_compact", true);
+		pref_tap_action = mPrefs.getString("pref_tap_action", "set");
+		pref_active_reddits = mPrefs
+				.getString("pref_active_reddits", "redwall");
+
+	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_REFRESH, 0, "Refresh");
@@ -405,7 +475,8 @@ public class Main extends Activity {
 			return true;
 
 		case MENU_PREF:
-			this.finish();
+			Intent intent = new Intent().setClass(this, Preferences.class);
+			startActivity(intent);
 			return true;
 		}
 		return false;
@@ -427,12 +498,18 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		if (!EXTERNAL_STORAGE.exists())
-			EXTERNAL_STORAGE.mkdirs();
+		if (!Constants.EXTERNAL_STORAGE.exists())
+			Constants.EXTERNAL_STORAGE.mkdirs();
 
 		if (currentapiVersion >= 5) {
 			wallpaperManager = WallpaperManager.getInstance(this);
 		}
+
+		mPrefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		update_prefs();
+
+		mDB = new DBHelper(this);
 
 		list = (ListView) this.findViewById(R.id.list);
 		int layoutID = R.layout.list_item;
@@ -492,33 +569,38 @@ public class Main extends Activity {
 
 						switch (pos) {
 						case 0: {
-							currentFeed = "http://www.reddit.com/r/redwall/.json?limit="
-									+ pref_count;
+							currentFeed = "http://www.reddit.com/r/"
+									+ pref_active_reddits + "/.json?";
+									
 							refresh();
 							break;
 						}
 						case 1: {
-							currentFeed = "http://www.reddit.com/r/redwall/new.json?sort=new&limit="
-									+ pref_count;
+							currentFeed = "http://www.reddit.com/r/"
+									+ pref_active_reddits
+									+ "/new.json?sort=new&";
 							refresh();
 							break;
 						}
 
 						case 2: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=week&limit="
-									+ pref_count;
+							currentFeed = "http://www.reddit.com/r/"
+									+ pref_active_reddits
+									+ "/top.json?t=week&";
 							refresh();
 							break;
 						}
 						case 3: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=month&limit="
-									+ pref_count;
+							currentFeed = "http://www.reddit.com/r/"
+									+ pref_active_reddits
+									+ "/top.json?t=month&";
 							refresh();
 							break;
 						}
 						case 4: {
-							currentFeed = "http://www.reddit.com/r/redwall/top.json?t=year&limit="
-									+ pref_count;
+							currentFeed = "http://www.reddit.com/r/"
+									+ pref_active_reddits
+									+ "/top.json?t=year&";
 							refresh();
 							break;
 						}
@@ -547,5 +629,39 @@ public class Main extends Activity {
 					}
 
 				});
+		pref_frist_run = mPrefs.getBoolean(Constants.SETTING_KEY_RUN, true);
+		// first run stuff
+		if (pref_frist_run) {
+
+			// open_about();
+			new AlertDialog.Builder(this)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle("v22-Konichiwa")
+					.setMessage(
+							"We have added a lot of great features (Search, Local Files, Settings?lol).  But some of these require a reset of the /redwall directory on your sd card.  To have wallpapers show up in the local list they must be re-downloaded. ")
+					.setPositiveButton("Empty Dir",
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+
+									File[] files = Constants.EXTERNAL_STORAGE
+											.listFiles();
+									for (int i = 0; i < files.length; i++) {
+										files[i].delete();
+									}
+									
+									
+									SharedPreferences.Editor edit = mPrefs.edit();
+									edit.putBoolean(Constants.SETTING_KEY_RUN, false);
+									edit.commit();
+								}
+
+							}).show();
+
+
+		}
 	}
+
 }

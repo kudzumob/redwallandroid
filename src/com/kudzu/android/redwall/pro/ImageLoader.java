@@ -21,7 +21,7 @@ public class ImageLoader {
 	// something like SoftReference or BitmapOptions.inPurgeable(since 1.6)
 	private HashMap<String, Bitmap> cache = new HashMap<String, Bitmap>();
 
-	private File cacheDir;
+
 
 	public ImageLoader(Context context) {
 		// Make the background thead low priority. This way it will not affect
@@ -29,15 +29,9 @@ public class ImageLoader {
 		photoLoaderThread.setPriority(Thread.NORM_PRIORITY - 1);
 
 		// Find the dir to save cached images
-		if (android.os.Environment.getExternalStorageState().equals(
-				android.os.Environment.MEDIA_MOUNTED))
-			cacheDir = new File(
-					android.os.Environment.getExternalStorageDirectory(),
-					".RedwallThumbCache");
-		else
-			cacheDir = context.getCacheDir();
-		if (!cacheDir.exists())
-			cacheDir.mkdirs();
+
+		if (!Constants.CACHE_STORAGE.exists())
+			Constants.CACHE_STORAGE.mkdirs();
 	}
 
 	final int stub_id = R.drawable.nothumb;
@@ -71,7 +65,7 @@ public class ImageLoader {
 		// I identify images by hashcode. Not a perfect solution, good for the
 		// demo.
 		String filename = String.valueOf(url.hashCode());
-		File f = new File(cacheDir, filename);
+		File f = new File(Constants.CACHE_STORAGE, filename);
 
 		// from SD cache
 		Bitmap b = decodeFile(f);
@@ -200,7 +194,7 @@ public class ImageLoader {
 		cache.clear();
 
 		// clear SD cache
-		File[] files = cacheDir.listFiles();
+		File[] files = Constants.CACHE_STORAGE.listFiles();
 		for (File f : files)
 			f.delete();
 	}
